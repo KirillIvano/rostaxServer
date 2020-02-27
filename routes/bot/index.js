@@ -3,7 +3,7 @@ const router = require('express').Router();
 const {
     checkIfHashExists,
     createHash,
-} = require('../database/interactions/hash');
+} = require('~/database/interactions/hash');
 
 router.post('/checkHash', async (req, res) => {
     const {hash} = req.query;

@@ -1,13 +1,15 @@
 const {HashModel} = require('./../schemas/hash');
 
+const removeHash = async id => {
+    return HashModel.deleteOne({_id: id});
+};
+
 const checkIfHashExists = async hash => {
     const found = await HashModel.findOne({value: hash});
     if (!found) {
         return false;
     }
-
-    await HashModel.deleteOne({_id: found._id});
-    return true;
+    return found;
 };
 
 const createHash = async () => {
@@ -20,6 +22,7 @@ const createHash = async () => {
 };
 
 module.exports = {
+    removeHash,
     checkIfHashExists,
     createHash,
 };
