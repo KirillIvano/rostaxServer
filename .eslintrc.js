@@ -28,6 +28,7 @@ module.exports = {
         'key-spacing': ['error'],
         'no-trailing-spaces': ['error'],
         'handle-callback-err': ['error'],
-        'max-len': ['warn', {code: 120}]
+        'max-len': ['warn', {code: 120}],
+        'no-console': ['error']
     }
 };

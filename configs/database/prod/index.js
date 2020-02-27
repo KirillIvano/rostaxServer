@@ -7,8 +7,8 @@ module.exports = {
             throw new NoPasswordError('No mongo password!');
         }
         return (
-            `mongodb+srv://wgwergwegwer:${process.env.MONGO_PASSWORD}` +
-            '@geometric-0t3ep.mongodb.net/GeoMetric?retryWrites=true&w=majority'
+            `@mongodb://wgwergwegwer:${process.env.MONGO_PASSWORD}` +
+            '@ds117749.mlab.com:17749/heroku_5sc3dw05'
         );
     },
     options: {useNewUrlParser: true},
