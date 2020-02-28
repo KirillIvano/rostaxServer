@@ -1,10 +1,11 @@
 const router = require('express').Router();
 
-const {checkIfHashExists} = require('~/database/interactions/hash');
+const {getHash} = require('~/database/interactions/hash');
 const {jsonResponse} = require('~/helpers/jres');
+const {generateRefreshJWT} = require('~/helpers/signJwt');
 const {
     createAdmin,
-    checkAdminByName,
+    getAdminByName,
 } = require('~/database/interactions/admin');
 
 const errors = require('./errors');
@@ -16,8 +17,8 @@ router.post('/register/:hash', async (req, res) => {
         return;
     }
 
-    const isHashValid = await checkIfHashExists(hash);
-    if (!isHashValid) {
+    const savedHash = await getHash(hash);
+    if (!savedHash) {
         jsonResponse(res, 401, {ok: false, error: errors.INVALID_HASH});
     }
 
@@ -28,15 +29,41 @@ router.post('/register/:hash', async (req, res) => {
         return;
     }
 
-    const doesAdminExist = await checkAdminByName(name);
+    const doesAdminExist = await getAdminByName(name);
     if (doesAdminExist) {
         jsonResponse(res, 400, {ok: false, error: errors.DUPLICATE_NAME});
         return;
     }
 
-    const admin = await createAdmin(name, password);
+    await createAdmin(name, password);
+
+    await savedHash.remove();
 
     jsonResponse(res, 200, {ok: true});
+});
+
+router.post('/login', async (req, res) => {
+    const {name, password} = req.body;
+    if (!name || !password) {
+        jsonResponse(res, 400, {ok: false, error: errors.INVALID_PARAMS});
+        return;
+    }
+
+    const admin = await getAdminByName(name);
+    if (!admin) {
+        jsonResponse(res, 404, {ok: false, error: errors.USER_NOT_FOUND});
+    }
+
+    const isPasswordValid = await admin.validatePassword(password);
+    if (!isPasswordValid) {
+        jsonResponse(res, 400, {ok: false, error: errors.INVALID_PASSWORD});
+        return;
+    }
+
+    const {_id} = admin;
+    const jwt = generateRefreshJWT(_id);
+
+    jsonResponse(res, 200, {ok: true, token: jwt});
 });
 
 module.exports = router;
