@@ -6,4 +6,5 @@ module.exports = {
     SERVER_ERROR: 'ошибка сервера',
 
     INVALID_PASSWORD: 'Неверный пароль',
+    USER_NOT_FOUND: 'Пользователя с таким именем нет',
 };

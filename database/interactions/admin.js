@@ -8,17 +8,12 @@ const createAdmin = async (name, password) => {
     return admin.save();
 };
 
-const checkAdminByName = async name => {
-    const admin = await AdminModel.findOne({name: name});
-    if (!admin) return false;
-
-    return admin;
-};
+const getAdminByName = name => AdminModel.findOne({name: name});
 
 const getAdminById = id => AdminModel.findById(id);
 
 module.exports = {
     createAdmin,
-    checkAdminByName,
+    getAdminByName,
     getAdminById,
 };

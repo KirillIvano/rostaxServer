@@ -40,7 +40,7 @@ AdminSchema.methods.setPassword = async function(password){
     this.passwordSalt = passwordSalt;
 };
 
-AdminSchema.methods.validPassword = async function(password) {
+AdminSchema.methods.validatePassword = async function(password) {
     const hash = await createPasswordHash(password, this.passwordSalt);
     return this.passwordHash === hash;
 };
