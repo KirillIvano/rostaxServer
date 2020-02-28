@@ -8,7 +8,8 @@ const morgan = require('morgan');
 const app = express();
 const path = require('path');
 
-require('./db');
+require('~/initializers/initDb');
+require('~/initializers/initPassport');
 const adminRoutes = require('./routes');
 
 app.use(cors());

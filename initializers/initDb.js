@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const devConfig = require('./configs/database/dev');
-const prodConfig = require('./configs/database/prod');
+const devConfig = require('~/configs/database/dev');
+const prodConfig = require('~/configs/database/prod');
 
 if (process.env.NODE_ENV==='production'){
     mongoose.connect(prodConfig.uri, prodConfig.options);
