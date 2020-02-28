@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
-// const jwt = require('jsonwebtoken');
 
 const AdminSchema = new mongoose.Schema({
     name: {
@@ -45,17 +44,6 @@ AdminSchema.methods.validPassword = async function(password) {
     const hash = await createPasswordHash(password, this.passwordSalt);
     return this.passwordHash === hash;
 };
-
-// UserSchema.methods.generateJWT = function(){
-//     var expiry = new Date();
-//     expiry.setDate(expiry.getDate() + 7);
-//     return jwt.sign({
-//         _id: this._id,
-//         email: this.email,
-//         name: this.name,
-//         exp: parseInt(expiry.getTime()/1000),
-//     }, 'secret');
-// };
 
 const AdminModel = mongoose.model('admin', AdminSchema);
 

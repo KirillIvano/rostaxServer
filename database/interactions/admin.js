@@ -15,7 +15,10 @@ const checkAdminByName = async name => {
     return admin;
 };
 
+const getAdminById = id => AdminModel.findById(id);
+
 module.exports = {
     createAdmin,
     checkAdminByName,
+    getAdminById,
 };

@@ -35,7 +35,7 @@ router.post('/register/:hash', async (req, res) => {
     }
 
     const admin = await createAdmin(name, password);
-    console.log(admin);
+
     jsonResponse(res, 200, {ok: true});
 });
 
