@@ -3,4 +3,6 @@ const jsonResponse = (res, status, body) => {
     res.json(body);
 };
 
-module.exports.jsonResponse = jsonResponse;
+module.exports = {
+    jsonResponse,
+};

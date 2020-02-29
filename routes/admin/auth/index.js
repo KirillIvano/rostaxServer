@@ -2,11 +2,16 @@ const router = require('express').Router();
 
 const {getHash} = require('~/database/interactions/hash');
 const {jsonResponse} = require('~/helpers/jres');
-const {generateRefreshJWT} = require('~/helpers/signJwt');
+const {createRandomKey} = require('~/helpers/createRandomKey');
+const {
+    generateRefreshJWT,
+    generateTemporaryJWT,
+} = require('~/helpers/signJwt');
 const {
     createAdmin,
     getAdminByName,
 } = require('~/database/interactions/admin');
+const {createSession} = require('~/database/interactions/admin');
 
 const errors = require('./errors');
 
@@ -60,10 +65,42 @@ router.post('/login', async (req, res) => {
         return;
     }
 
-    const {_id} = admin;
-    const jwt = generateRefreshJWT(_id);
+    const userId = admin.id;
 
-    jsonResponse(res, 200, {ok: true, token: jwt});
+    // генерирую пару токенов
+    const accessToken = generateTemporaryJWT(userId);
+    const refreshToken = generateRefreshJWT(userId);
+
+    // создаём подпись юзера
+    const randomKey = createRandomKey();
+    res.cookie('fingerprint', randomKey, {httpOnly: true});
+
+    // создаём сессию с подписью и токеном
+    createSession({
+        userId,
+        refreshToken,
+        fingerprint: randomKey,
+    });
+
+    jsonResponse(
+        res,
+        200,
+        {
+            ok: true,
+            refreshToken,
+            accessToken,
+        },
+    );
+
 });
 
+router.post('/refreshToken', async (req, res) => {
+
+});
+
+router.post('/resetSessions', async (req, res) => {
+
+});
+
+router.post('updateToken' );
 module.exports = router;

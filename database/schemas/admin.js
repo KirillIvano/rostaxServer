@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
-const crypto = require('crypto');
+
+const {createPasswordHash} = require('~/helpers/passwordHash');
+const {createRandomKey} = require('~/helpers/createRandomKey');
+const {SessionSchema} = require('~/database/schemas/session');
 
 const AdminSchema = new mongoose.Schema({
     name: {
@@ -16,26 +19,14 @@ const AdminSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    sessions: {
+        type: [SessionSchema],
+        default: [],
+    },
 });
 
-const createPasswordHash = (password, passwordSalt) =>
-    new Promise((resolve, reject) => {
-        crypto.pbkdf2(
-            password,
-            passwordSalt,
-            1000,
-            64,
-            null,
-            (err, pswd) =>
-                err ?
-                    reject(err) :
-                    resolve(pswd.toString('hex')),
-        );
-    });
-
-
 AdminSchema.methods.setPassword = async function(password){
-    const passwordSalt = crypto.randomBytes(16).toString('hex');
+    const passwordSalt = createRandomKey();
     this.passwordHash = await createPasswordHash(password, passwordSalt);
     this.passwordSalt = passwordSalt;
 };
