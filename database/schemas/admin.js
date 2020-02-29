@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 
 const {createPasswordHash} = require('~/helpers/passwordHash');
 const {createRandomKey} = require('~/helpers/createRandomKey');
-const {SessionSchema} = require('~/database/schemas/session');
 
 const AdminSchema = new mongoose.Schema({
     name: {
@@ -19,8 +18,8 @@ const AdminSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    sessions: {
-        type: [SessionSchema],
+    jwts: {
+        type: [String],
         default: [],
     },
 });

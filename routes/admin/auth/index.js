@@ -3,10 +3,7 @@ const router = require('express').Router();
 const {getHash} = require('~/database/interactions/hash');
 const {jsonResponse} = require('~/helpers/jres');
 const {createRandomKey} = require('~/helpers/createRandomKey');
-const {
-    generateRefreshJWT,
-    generateTemporaryJWT,
-} = require('~/helpers/signJwt');
+const {generateJwtPair} = require('~/helpers/signJwt');
 const {
     createAdmin,
     getAdminByName,
@@ -68,39 +65,29 @@ router.post('/login', async (req, res) => {
     const userId = admin.id;
 
     // генерирую пару токенов
-    const accessToken = generateTemporaryJWT(userId);
-    const refreshToken = generateRefreshJWT(userId);
+    const csrf = createRandomKey();
+    const {refreshJwt, accessJwt} = generateJwtPair(userId, csrf);
 
-    // создаём подпись юзера
-    const randomKey = createRandomKey();
-    res.cookie('fingerprint', randomKey, {httpOnly: true});
-
-    // создаём сессию с подписью и токеном
-    createSession({
-        userId,
-        refreshToken,
-        fingerprint: randomKey,
-    });
+    // ставлю куку с токеном, она является основной
+    res.cookie('jwt', refreshJwt, {httpOnly: true});
 
     jsonResponse(
         res,
         200,
         {
             ok: true,
-            refreshToken,
-            accessToken,
+            refreshJwt,
+            accessJwt,
         },
     );
 
 });
 
 router.post('/refreshToken', async (req, res) => {
+    const {jwt: refreshToken} = req.cookies;
+    const {csrf} = req.body;
 
+    console.log(refreshToken, csrf);
 });
 
-router.post('/resetSessions', async (req, res) => {
-
-});
-
-router.post('updateToken' );
 module.exports = router;
