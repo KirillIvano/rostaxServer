@@ -9,7 +9,6 @@ const AdminSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
-
     passwordHash: {
         type: String,
         required: true,
@@ -17,10 +16,6 @@ const AdminSchema = new mongoose.Schema({
     passwordSalt: {
         type: String,
         required: true,
-    },
-    jwts: {
-        type: [String],
-        default: [],
     },
 });
 
