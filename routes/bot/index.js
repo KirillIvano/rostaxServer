@@ -35,7 +35,7 @@ router.post('/getRegisterRef', async (req, res) => {
     }
 
     res.status(200);
-    res.json({ok: true, ref: '/admin/register/' + hash});
+    res.json({ok: true, ref: hash});
 });
 
 module.exports = router;

@@ -8,7 +8,6 @@ const {
     createAdmin,
     getAdminByName,
 } = require('~/database/interactions/admin');
-const {createSession} = require('~/database/interactions/admin');
 
 const errors = require('./errors');
 
@@ -22,6 +21,7 @@ router.post('/register/:hash', async (req, res) => {
     const savedHash = await getHash(hash);
     if (!savedHash) {
         jsonResponse(res, 401, {ok: false, error: errors.INVALID_HASH});
+        return;
     }
 
     const {name, password} = req.body;
@@ -54,6 +54,7 @@ router.post('/login', async (req, res) => {
     const admin = await getAdminByName(name);
     if (!admin) {
         jsonResponse(res, 404, {ok: false, error: errors.USER_NOT_FOUND});
+        return;
     }
 
     const isPasswordValid = await admin.validatePassword(password);
