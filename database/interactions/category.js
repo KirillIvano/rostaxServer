@@ -1,16 +1,16 @@
 const {CategoryModel} = require('~/database/schemas/category');
 
-const createCategory = name => CategoryModel.create({name});
+const createCategory = (name, image) => CategoryModel.create({name, image});
 
-const getAllCategoriesPreviews = () => CategoryModel.find({}, 'name image');
+const getAllCategories = () => CategoryModel.find();
 const getCategoryById = _id => CategoryModel.findById({_id});
 
-const updateCategory = name => CategoryModel.update({$set: {name: name}});
+const updateCategory = (name, image) => CategoryModel.update({$set: {name, image}});
 
 const deleteCategory = _id => CategoryModel.deleteOne({_id});
 
 module.exports = {
-    getAllCategoriesPreviews,
+    getAllCategories,
     getCategoryById,
     createCategory,
     deleteCategory,
