@@ -9,6 +9,7 @@ const CategorySchema = new mongoose.Schema({
     image: {
         type: String,
         required: false,
+        default: 'placeholder.png',
     },
     items: {
         type: [ProductSchema],

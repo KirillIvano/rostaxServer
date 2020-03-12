@@ -6,6 +6,7 @@ const {createRandomKey} = require('~/helpers/createRandomKey');
 
 const getDir = util.promisify(fs.readdir);
 const moveFile = util.promisify(fs.rename);
+const deleteFile = util.promisify(fs.unlink);
 
 const IMAGES_PATH = path.resolve(__dirname, '..', '..', 'images');
 
@@ -20,14 +21,26 @@ const generateFileName = async extension => {
     }
 };
 
+const getImagePath = filename => path.resolve(IMAGES_PATH, filename);
+
 const saveImage = async (imageDir, fileExtension) => {
     const newFile = await generateFileName(fileExtension);
-    const newDir = path.resolve(IMAGES_PATH, newFile);
+    const newFilePath = getImagePath(newFile);
 
-    await moveFile(imageDir, newDir);
+    await moveFile(imageDir, newFilePath);
     return newFile;
+};
+
+const replaceImage = async (imageDir, imageName) => {
+    await moveFile(imageDir, getImagePath(imageName));
+};
+
+const deleteImage = async imageName => {
+    await deleteFile(getImagePath(imageName));
 };
 
 module.exports = {
     saveImage,
+    replaceImage,
+    deleteImage,
 };
