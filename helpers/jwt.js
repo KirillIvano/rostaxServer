@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const doSignJWT = (expiryDate, ...params) =>
+const doSignJWT = (expiryDate, params) =>
     jwt.sign(
         {
             ...params,
@@ -9,27 +9,30 @@ const doSignJWT = (expiryDate, ...params) =>
         process.env.SERVER_SECRET,
     );
 
-const generateTemporaryJWT = _id => {
+const generateTemporaryJWT = id => {
     const expiry = new Date();
     expiry.setDate(expiry.getMinutes() + 10);
 
-    return doSignJWT(expiry, {_id});
+    return doSignJWT(expiry, {id});
 };
 
-const generateRefreshJWT = (_id, csrf) => {
+const generateRefreshJWT = (id, csrf) => {
     var expiry = new Date();
     expiry.setDate(expiry.getDate() + 7);
 
-    return doSignJWT(expiry, {_id, csrf});
+    return doSignJWT(expiry, {id, csrf});
 };
 
-const generateJwtPair = (_id, csrf) => ({
-    accessJwt: generateTemporaryJWT(_id),
-    refreshJwt: generateRefreshJWT(_id, csrf),
+const generateJwtPair = (id, csrf) => ({
+    accessJwt: generateTemporaryJWT(id),
+    refreshJwt: generateRefreshJWT(id, csrf),
 });
+
+const verifyJwt = token => jwt.verify(token, process.env.SERVER_SECRET);
 
 module.exports = {
     generateTemporaryJWT,
     generateRefreshJWT,
     generateJwtPair,
+    verifyJwt,
 };

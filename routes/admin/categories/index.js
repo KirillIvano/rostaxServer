@@ -40,7 +40,7 @@ router.get('/previews', async (req, res) => {
             200,
             {
                 ok: true,
-                data: categoriesPreviews,
+                categories: categoriesPreviews,
             },
         );
     } catch {

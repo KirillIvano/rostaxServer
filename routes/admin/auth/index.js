@@ -3,7 +3,7 @@ const router = require('express').Router();
 const {getHash} = require('~/database/interactions/hash');
 const {jsonResponse} = require('~/helpers/jres');
 const {createRandomKey} = require('~/helpers/createRandomKey');
-const {generateJwtPair} = require('~/helpers/signJwt');
+const {generateJwtPair} = require('~/helpers/jwt');
 const {
     createAdmin,
     getAdminByName,
@@ -84,11 +84,13 @@ router.post('/login', async (req, res) => {
 
 });
 
-router.post('/refreshToken', async (req, res) => {
+router.post('/refreshTokens', async (req, res) => {
     const {jwt: refreshToken} = req.cookies;
     const {csrf} = req.body;
 
-    console.log(refreshToken, csrf);
+    if (!refreshToken || !csrf) {
+        jsonResponse(res, 400, {ok: false});
+    }
 });
 
 module.exports = router;
