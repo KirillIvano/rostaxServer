@@ -70,7 +70,7 @@ router.post('/login', async (req, res) => {
     const {refreshJwt, accessJwt} = generateJwtPair(userId, csrf);
 
     // ставлю куку с токеном, она является основной
-    res.cookie('jwt', refreshJwt, {httpOnly: false, maxAge: 30 * 24 * 60 * 60 * 100});
+    res.cookie('jwt', refreshJwt, {httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 100});
 
     jsonResponse(
         res,
@@ -81,7 +81,6 @@ router.post('/login', async (req, res) => {
             accessJwt,
         },
     );
-
 });
 
 router.post('/refreshTokens', async (req, res) => {
@@ -95,22 +94,23 @@ router.post('/refreshTokens', async (req, res) => {
 
     let tokenPayload;
     try {
-        tokenPayload = verifyJwt(refreshJwt);
+        tokenPayload = verifyJwt(refreshToken);
     } catch {
         jsonResponse(res, 400, {ok: false, error: 'Невалидный токен'});
         return;
     }
 
-    const {csrf: tokenCsrf} = tokenPayload;
+    const {csrf: tokenCsrf, id} = tokenPayload;
 
     if (tokenCsrf !== csrf) {
         jsonResponse(res, 400, {ok: false, error: 'Не совпадают данные куки и токена'});
         return;
     }
 
-    const {accessJwt, refreshJwt} = generateJwtPair();
+    const newCsrf = createRandomKey();
+    const {accessJwt, refreshJwt} = generateJwtPair(id, newCsrf);
 
-    res.cookie('jwt', refreshJwt, {});
+    res.cookie('jwt', refreshJwt, {httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 100});
     jsonResponse(res, 200, {
         ok: true,
         accessJwt,
