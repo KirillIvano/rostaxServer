@@ -3,7 +3,7 @@ const router = require('express').Router();
 const {getHash} = require('~/database/interactions/hash');
 const {jsonResponse} = require('~/helpers/jres');
 const {createRandomKey} = require('~/helpers/createRandomKey');
-const {generateJwtPair} = require('~/helpers/jwt');
+const {generateJwtPair, verifyJwt} = require('~/helpers/jwt');
 const {
     createAdmin,
     getAdminByName,
@@ -70,7 +70,7 @@ router.post('/login', async (req, res) => {
     const {refreshJwt, accessJwt} = generateJwtPair(userId, csrf);
 
     // ставлю куку с токеном, она является основной
-    res.cookie('jwt', refreshJwt, {httpOnly: true});
+    res.cookie('jwt', refreshJwt, {httpOnly: false, maxAge: 30 * 24 * 60 * 60 * 100});
 
     jsonResponse(
         res,
@@ -89,8 +89,33 @@ router.post('/refreshTokens', async (req, res) => {
     const {csrf} = req.body;
 
     if (!refreshToken || !csrf) {
-        jsonResponse(res, 400, {ok: false});
+        jsonResponse(res, 400, {ok: false, error: 'Нет данных для входа'});
+        return;
     }
+
+    let tokenPayload;
+    try {
+        tokenPayload = verifyJwt(refreshJwt);
+    } catch {
+        jsonResponse(res, 400, {ok: false, error: 'Невалидный токен'});
+        return;
+    }
+
+    const {csrf: tokenCsrf} = tokenPayload;
+
+    if (tokenCsrf !== csrf) {
+        jsonResponse(res, 400, {ok: false, error: 'Не совпадают данные куки и токена'});
+        return;
+    }
+
+    const {accessJwt, refreshJwt} = generateJwtPair();
+
+    res.cookie('jwt', refreshJwt, {});
+    jsonResponse(res, 200, {
+        ok: true,
+        accessJwt,
+        refreshJwt,
+    });
 });
 
 module.exports = router;

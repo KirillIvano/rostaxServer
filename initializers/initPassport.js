@@ -13,7 +13,7 @@ passport.use(new Strategy(
         } catch(e) {
             return done('Invalid token');
         }
-        console.log(payload);
+
         const {id} = payload;
 
         const user = await getAdminById(id);
