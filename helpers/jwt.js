@@ -4,14 +4,14 @@ const doSignJWT = (expiryDate, params) =>
     jwt.sign(
         {
             ...params,
-            exp: Math.floor(expiryDate.getTime()/1000),
+            exp: Math.floor(expiryDate.getTime() / 1000),
         },
         process.env.SERVER_SECRET,
     );
 
 const generateTemporaryJWT = id => {
     const expiry = new Date();
-    expiry.setDate(expiry.getMinutes() + 10);
+    expiry.setSeconds(expiry.getSeconds() + 10);
 
     return doSignJWT(expiry, {id});
 };

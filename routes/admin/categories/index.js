@@ -25,8 +25,11 @@ const {
     BAD_FORMAT,
     NOTHING_TO_DELETE,
     INVALID_ID,
+
     IMAGE_SAVING_ERROR,
     IMAGE_UPDATING_ERROR,
+    UPDATING_ERROR,
+
     NOTHING_TO_UPDATE,
 } = require('./errors');
 
@@ -79,7 +82,6 @@ router.post(
         try {
             imageName = await saveImage(tempPath, extension);
         } catch(e) {
-            console.log(e);
             jsonResponse(res, 500, {ok: false, error: IMAGE_SAVING_ERROR});
             return;
         }
@@ -95,6 +97,11 @@ router.post(
 
 router.delete('/:categoryId', async (req, res) => {
     const {categoryId} = req.params;
+    if (!categoryId) {
+        jsonResponse(res, 400, {ok: false, error: INVALID_ID});
+        return;
+    }
+
     const category = await getCategoryById(categoryId);
 
     if (!category) {
@@ -161,20 +168,29 @@ router.put(
             const imageName = category.image;
             try {
                 await replaceImage(path, imageName);
-            } catch {
+            } catch(e) {
+                console.log(e);
                 jsonResponse(res, 500, {ok: false, error: IMAGE_UPDATING_ERROR});
                 return;
             }
         }
+        if (name) {
+            try {
+                const updateResults = await updateCategory(categoryId, {name: name});
+                console.log(updateResults);
+            } catch {
+                jsonResponse(res, 500, {ok: false, error: UPDATING_ERROR});
+            }
+        }
 
-        const updatedCategory = await updateCategory(categoryId, {name: name});
+        const updatedDoc = await getCategoryById(categoryId);
 
         jsonResponse(
             res,
             200,
             {
                 ok: true,
-                category: getCategoryPreview(updatedCategory),
+                category: getCategoryPreview(updatedDoc),
             },
         );
     });

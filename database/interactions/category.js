@@ -6,8 +6,8 @@ const getAllCategories = () => CategoryModel.find();
 const getCategoryById = _id => CategoryModel.findById({_id});
 
 const updateCategory = async (id, updates) => {
-    const {image, name} = updates;
-    const updatedDoc = await CategoryModel.update({$set: {name, image}});
+    const {name} = updates;
+    const updatedDoc = await CategoryModel.updateOne({_id: id}, {$set: {name}});
 
     return updatedDoc;
 };

@@ -7,6 +7,7 @@ module.exports = {
 
     IMAGE_SAVING_ERROR: 'Картинка на данный момент не может быть сохранена',
     IMAGE_UPDATING_ERROR: 'Картинка не может быть обновлена',
+    UPDATING_ERROR: 'Невозможено сейчас обновить',
 
     NOTHING_TO_UPDATE: 'Нечего обновлять',
 
