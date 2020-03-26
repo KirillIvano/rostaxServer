@@ -14,19 +14,22 @@ require('~/initializers/initPassport');
 const adminRoutes = require('./routes');
 
 app.use(cors({credentials: true, origin: 'http://localhost:8080'}));
+
+// app.use(cors({credentials: true, origin: 'http://194.67.113.29:5000'}));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended: false}));
-app.use(express.static(path.resolve(__dirname, 'static', 'dist')));
-app.use(express.static(path.resolve(__dirname, 'static', 'dist', 'image')));
+app.use(express.static(path.resolve(__dirname, 'static', 'admin')));
+app.use('/images', express.static(path.resolve(__dirname, 'images')));
+
 const graphQlRoutes = require('./graph').initializeGraphql();
 
 app.post('/gql', graphQlRoutes);
 
 app.use(adminRoutes);
 
-app.get('/adminPanel(/*|)', (req, res) => {
+app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'static', 'admin', 'index.html'));
 });
 

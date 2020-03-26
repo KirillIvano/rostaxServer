@@ -11,7 +11,7 @@ const CategorySchema = new mongoose.Schema({
         required: false,
         default: 'placeholder.png',
     },
-    items: {
+    products: {
         type: [ProductSchema],
         default: [],
     },

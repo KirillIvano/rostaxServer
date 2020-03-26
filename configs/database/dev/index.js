@@ -7,6 +7,7 @@ module.exports = {
         if (!MONGO_PASSWORD) {
             throw new NoPasswordError('No mongo password!');
         }
+
         return (
             'mongodb://localhost:27017/rostax'
         );
