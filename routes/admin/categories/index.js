@@ -113,7 +113,8 @@ router.delete('/:categoryId', async (req, res) => {
         const {image} = category;
         await deleteImage(image);
     } catch(e) {
-        console.log(e);
+        jsonResponse(res, 500, {error: IMAGE_SAVING_ERROR});
+        return;
     }
 
     let deletionResult;
@@ -121,6 +122,7 @@ router.delete('/:categoryId', async (req, res) => {
         deletionResult = await deleteCategory(categoryId);
     } catch {
         jsonResponse(res, 400, {ok: false, error: INVALID_ID});
+        return;
     }
 
     const {deletedCount} = deletionResult;
@@ -133,6 +135,7 @@ router.delete('/:categoryId', async (req, res) => {
                 error: NOTHING_TO_DELETE,
             },
         );
+        return;
     }
 
     jsonResponse(
@@ -169,15 +172,13 @@ router.put(
             try {
                 await replaceImage(path, imageName);
             } catch(e) {
-                console.log(e);
                 jsonResponse(res, 500, {ok: false, error: IMAGE_UPDATING_ERROR});
                 return;
             }
         }
         if (name) {
             try {
-                const updateResults = await updateCategory(categoryId, {name: name});
-                console.log(updateResults);
+                await updateCategory(categoryId, {name: name});
             } catch {
                 jsonResponse(res, 500, {ok: false, error: UPDATING_ERROR});
             }
