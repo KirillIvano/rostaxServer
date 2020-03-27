@@ -1,7 +1,13 @@
 const router = require('express').Router();
+const multipartMiddleware = require('connect-multiparty')();
 
-const {getProductsByCategoryId} = require('~/database/interactions/products');
+const {getProductsByCategoryId, createProduct} = require('~/database/interactions/products');
 const {jsonResponse} = require('~/helpers/jres');
+const {
+    saveImage,
+    replaceImage,
+    deleteImage,
+} = require('~/apis/imageHost');
 
 router.get('/:categoryId', async (req, res) => {
     const {categoryId} = req.params;
@@ -22,14 +28,42 @@ router.get('/:categoryId', async (req, res) => {
     jsonResponse(res, 200, {ok: true, products});
 });
 
+router.post(
+    '/:categoryId',
+    multipartMiddleware,
+    async (req, res) => {
+        const {categoryId} = req.params;
 
-router.post('/:categoryId', (req, res) => {
-    // certificate
-    // image
-    // name
-    // description
-    // type
-});
+        const {image, certificate} = req.files;
+        const {name, shortDescription, type} = req.body;
+
+        const doAllFieldsExist = image && name && shortDescription && type;
+        console.log(name, shortDescription, type);
+        if (!doAllFieldsExist) {
+            jsonResponse(res, 400, {error: 'Все параметры обязательны!'});
+            return;
+        }
+
+        const {type: fileType, path: tempPath} = image;
+        const [extensionType, extension] = fileType.split('/');
+
+        if (extensionType !== 'image') {
+            jsonResponse(res, 400, {ok: false, error: 'Ожидается передача изображения'});
+            return;
+        }
+
+        let imageName;
+        try {
+            imageName = await saveImage(tempPath, extension);
+        } catch(e) {
+            jsonResponse(res, 500, {ok: false, error: 'Не получилось сохранить картинку, обратитесь к админу'});
+            return;
+        }
+
+        const product = await createProduct(categoryId, {name, shortDescription, type, image: imageName});
+
+        jsonResponse(res, 200, {ok: true, product});
+    });
 
 router.put('/:categoryId/:productId');
 router.delete('/:categoryId/:productId');

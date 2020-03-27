@@ -109,14 +109,6 @@ router.delete('/:categoryId', async (req, res) => {
         return;
     }
 
-    try {
-        const {image} = category;
-        await deleteImage(image);
-    } catch(e) {
-        jsonResponse(res, 500, {error: IMAGE_SAVING_ERROR});
-        return;
-    }
-
     let deletionResult;
     try {
         deletionResult = await deleteCategory(categoryId);
@@ -136,6 +128,13 @@ router.delete('/:categoryId', async (req, res) => {
             },
         );
         return;
+    }
+
+    try {
+        const {image} = category;
+        await deleteImage(image);
+    } catch(e) {
+        console.log(e);
     }
 
     jsonResponse(
