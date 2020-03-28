@@ -1,12 +1,14 @@
 const {pick} = require('ramda');
 
+const productFields = [
+    'name',
+    'shortDescription',
+    'description',
+    'id',
+];
+
 const getClientProduct = categoryDoc => pick(
-    [
-        'name',
-        'shortDescription',
-        'description',
-        'id',
-    ],
+    productFields,
     categoryDoc,
 );
 
