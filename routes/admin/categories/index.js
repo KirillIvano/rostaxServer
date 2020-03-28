@@ -65,26 +65,30 @@ router.post(
         const {name} = req.body;
         const {image} = req.files;
 
-        if (!name || !image) {
+        if (!name) {
             jsonResponse(res, 400, {ok: false, error: NAME_REQIRED});
             return;
         }
 
-        const {type: fileType, path: tempPath} = image;
-        const [type, extension] = fileType.split('/');
+        let imageName = 'placeholder.png';
 
-        if (type !== 'image') {
-            jsonResponse(res, 400, {ok: false, error: BAD_FORMAT});
-            return;
+        if (image) {
+            const {type: fileType, path: tempPath} = image;
+            const [type, extension] = fileType.split('/');
+
+            if (type !== 'image') {
+                jsonResponse(res, 400, {ok: false, error: BAD_FORMAT});
+                return;
+            }
+
+            try {
+                imageName = await saveImage(tempPath, extension);
+            } catch(e) {
+                jsonResponse(res, 500, {ok: false, error: IMAGE_SAVING_ERROR});
+                return;
+            }
         }
 
-        let imageName;
-        try {
-            imageName = await saveImage(tempPath, extension);
-        } catch(e) {
-            jsonResponse(res, 500, {ok: false, error: IMAGE_SAVING_ERROR});
-            return;
-        }
 
         try {
             const category = await createCategory(name, imageName);

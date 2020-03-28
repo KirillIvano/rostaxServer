@@ -16,7 +16,6 @@ const validateProduct = async product => {
 };
 
 const createProduct = async (categoryId, product) => {
-    console.log(categoryId);
     const category = await CategoryModel.findById(categoryId);
     const productDoc = await new ProductModel(product);
 
