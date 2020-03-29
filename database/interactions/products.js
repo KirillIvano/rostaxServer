@@ -10,6 +10,31 @@ const getProductsByCategoryId = async categoryId => {
     return products.map(getClientProduct);
 };
 
+const getProductByIds = async (categoryId, productId) => {
+    const category = await CategoryModel.findById(categoryId);
+    if (!category) return null;
+
+    return category.products.id(productId);
+};
+
+const deleteProduct = async (categoryId, productId) => {
+    const category = await CategoryModel.findById(categoryId);
+    if (!category) return false;
+
+    const {products} = category;
+
+    const newProducts = products.filter(({id}) => id !== productId);
+
+    if (newProducts.length === products.length) {
+        return false;
+    }
+
+    category.products = newProducts;
+    await category.save();
+
+    return true;
+};
+
 const validateProduct = async product => {
     const productDoc = new ProductModel(product);
     await productDoc.validate();
@@ -23,11 +48,13 @@ const createProduct = async (categoryId, product) => {
 
     await category.save();
 
-    return productDoc;
+    return getClientProduct(productDoc);
 };
 
 module.exports = {
     getProductsByCategoryId,
     validateProduct,
     createProduct,
+    getProductByIds,
+    deleteProduct,
 };

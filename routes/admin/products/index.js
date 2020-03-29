@@ -1,7 +1,14 @@
 const router = require('express').Router();
 const multipartMiddleware = require('connect-multiparty')();
 
-const {getProductsByCategoryId, createProduct} = require('~/database/interactions/products');
+const {
+    createProduct,
+    getProductByIds,
+    deleteProduct,
+} = require('~/database/interactions/products');
+const {getCategoryById} = require('~/database/interactions/category');
+const {getCategory} = require('~/database/getters/category');
+
 const {jsonResponse} = require('~/helpers/jres');
 const {
     saveImage,
@@ -12,20 +19,27 @@ const {
 router.get('/:categoryId', async (req, res) => {
     const {categoryId} = req.params;
 
-    let products;
+    let category;
     try {
-        products = await getProductsByCategoryId(categoryId);
+        category = await getCategoryById(categoryId);
     } catch (e) {
-        jsonResponse(res, 500, {ok: false, error: 'Не получилось получить продукты'});
+        jsonResponse(res, 500, {ok: false, error: 'Не получилось получить доступ к данной категории'});
         return;
     }
 
-    if (!products) {
+    if (!category) {
         jsonResponse(res, 404, {ok: false, error: 'Такой категории не найдено'});
         return;
     }
 
-    jsonResponse(res, 200, {ok: true, products});
+    jsonResponse(
+        res,
+        200,
+        {
+            ok: true,
+            category: getCategory(category),
+        },
+    );
 });
 
 router.post(
@@ -44,7 +58,7 @@ router.post(
             return;
         }
 
-        let imageName = 'placeholder.png';
+        let imageName = process.env.IMAGE_PLACEHOLDER;
 
         if (image) {
             const {type: fileType, path: tempPath} = image;
@@ -63,10 +77,10 @@ router.post(
             }
         }
 
-        let certificateName = 'cert.png';
+        let certificateName = process.env.CERTIFICATE_PLACEHOLDER;
 
         if (certificate) {
-            const {type: fileType, path: tempPath} = image;
+            const {type: fileType, path: tempPath} = certificate;
             const extension = fileType.split('/')[0];
 
             try {
@@ -89,6 +103,38 @@ router.post(
     });
 
 router.put('/:categoryId/:productId');
-router.delete('/:categoryId/:productId');
+router.delete(
+    '/:categoryId/:productId',
+    async (req, res) => {
+        const {categoryId, productId} = req.params;
+        const product = getProductByIds(categoryId, productId);
+
+        if (!product) {
+            jsonResponse(res, 404, {error: 'Продукт не найден'});
+            return;
+        }
+
+        try {
+            const isDeleted = await deleteProduct(categoryId, productId);
+            if (!isDeleted) {
+                jsonResponse(res, 404, {error: 'Продукт не найден'});
+                return;
+            }
+        } catch {
+            jsonResponse(res, 500, {error: 'Ошибка сохранения'});
+            return;
+        }
+
+        const {certificate, image} = product;
+        try {
+            image === process.env.IMAGE_PLACEHOLDER && deleteImage(image);
+            certificate === process.env.CERTIFICATE_PLACEHOLDER && deleteImage(certificate);
+        } catch {
+            console.log('deleting error');
+        }
+
+        jsonResponse(res, 200, {ok: true});
+    },
+);
 
 module.exports = router;
