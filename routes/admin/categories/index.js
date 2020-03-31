@@ -89,7 +89,6 @@ router.post(
             }
         }
 
-
         try {
             const category = await createCategory(name, imageName);
             jsonResponse(res, 200, {ok: true, category: getCategoryPreview(category)});

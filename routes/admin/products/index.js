@@ -5,6 +5,7 @@ const {
     createProduct,
     getProductByIds,
     deleteProduct,
+    updateDescription,
 } = require('~/database/interactions/products');
 const {getCategoryById} = require('~/database/interactions/category');
 const {getCategory} = require('~/database/getters/category');
@@ -91,18 +92,51 @@ router.post(
             }
         }
 
-        const product = await createProduct(categoryId, {
-            name,
-            shortDescription,
-            type,
-            image: imageName,
-            certificate: certificateName,
-        });
+        let product;
+        try {
+            product = await createProduct(categoryId, {
+                name,
+                shortDescription,
+                type,
+                image: imageName,
+                certificate: certificateName,
+            });
+        } catch {
+            jsonResponse(res, 500, {ok: false, error: 'Не удалось сохранить продукт'});
+            return;
+        }
+
+        if (!product) {
+            jsonResponse(res, 500, {ok: false, error: 'Не удалось найти соответствующую категорию'});
+            return;
+        }
 
         jsonResponse(res, 200, {ok: true, product});
     });
 
-router.put('/:categoryId/:productId');
+router.put('/description', async (req, res) => {
+    const {categoryId, productId} = req.query;
+    const {description} = req.body;
+
+    const updatedProduct = await updateDescription(categoryId, productId, description);
+
+    if (!updatedProduct) {
+        jsonResponse(res, 400, {error: 'Не существует такой категории или продукта'});
+        return;
+    }
+
+    jsonResponse(
+        res,
+        200,
+        {
+            ok: true,
+            product: updatedProduct,
+        },
+    );
+});
+
+router.put('/main/:categoryId/:productId/');
+
 router.delete(
     '/:categoryId/:productId',
     async (req, res) => {

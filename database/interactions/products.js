@@ -42,6 +42,7 @@ const validateProduct = async product => {
 
 const createProduct = async (categoryId, product) => {
     const category = await CategoryModel.findById(categoryId);
+    if (!category) return null;
     const productDoc = await new ProductModel(product);
 
     category.products.push(productDoc);
@@ -51,10 +52,24 @@ const createProduct = async (categoryId, product) => {
     return getClientProduct(productDoc);
 };
 
+const updateDescription = async (categoryId, productId, description) => {
+    const category = await CategoryModel.findById(categoryId);
+    if (!category) return null;
+    const product = category.products.find(({id}) => id === productId);
+    if (!product) return null;
+
+    product.description = description;
+    await category.save();
+
+    return product;
+};
+
 module.exports = {
     getProductsByCategoryId,
     validateProduct,
     createProduct,
     getProductByIds,
     deleteProduct,
+
+    updateDescription,
 };

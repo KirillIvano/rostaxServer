@@ -11,6 +11,17 @@ const DescriptionItemSchema = new mongoose.Schema({
     },
 });
 
+const DescriptionSectionSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        require: true,
+    },
+    items: {
+        type: [DescriptionItemSchema],
+        default: () => [],
+    },
+});
+
 const ProductSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -32,7 +43,7 @@ const ProductSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    description: [DescriptionItemSchema],
+    description: [DescriptionSectionSchema],
 });
 
 const ProductModel = mongoose.model('Product', ProductSchema);
