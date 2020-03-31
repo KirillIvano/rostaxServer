@@ -1,27 +1,5 @@
 const mongoose = require('mongoose');
 
-const DescriptionItemSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    value: {
-        type: String,
-        require: true,
-    },
-});
-
-const DescriptionSectionSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        require: true,
-    },
-    items: {
-        type: [DescriptionItemSchema],
-        default: () => [],
-    },
-});
-
 const ProductSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -43,7 +21,13 @@ const ProductSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    description: [DescriptionSectionSchema],
+    description: {
+        type: [{
+            name: String,
+            items: [{name: String, value: String}],
+        }],
+        default: [],
+    },
 });
 
 const ProductModel = mongoose.model('Product', ProductSchema);

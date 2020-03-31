@@ -61,7 +61,7 @@ const updateDescription = async (categoryId, productId, description) => {
     product.description = description;
     await category.save();
 
-    return product;
+    return getClientProduct(product);
 };
 
 module.exports = {
