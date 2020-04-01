@@ -3,15 +3,10 @@ const {
     GraphQLObjectType,
     GraphQLList,
     GraphQLString,
-    GraphQLInt,
 } = require('graphql');
 
-const template = require('./../../template');
-const colors = require('./../../colors');
-
-const {
-    ColorSectionType,
-} = require('./colors');
+const {getAllCategories} = require('~/database/interactions/category');
+const {getProductByIds, getProductsByCategoryId} = require('~/database/interactions/products');
 
 const {
     ProductCategoryType,
@@ -21,54 +16,32 @@ const {
 const RootType = new GraphQLObjectType({
     name: 'root',
     fields: {
-        colorSections: {
-            type: GraphQLList(ColorSectionType),
-            resolve: () => {
-                return colors;
-            },
-        },
         product: {
             type: ProductType,
             args: {
-                categoryId: {type: GraphQLInt},
+                categoryId: {type: GraphQLString},
                 productId: {type: GraphQLString},
             },
             resolve: (_, args) => {
                 const {productId, categoryId} = args;
 
-                const category = template.productCategories.find(
-                    ({id}) => id === categoryId,
-                );
-                if (!category) return null;
-
-                const product = category.items.find(
-                    ({id}) => id === productId,
-                );
-                if (product) return product;
-
-                return null;
+                return getProductByIds(categoryId, productId);
             },
         },
         products: {
             type: GraphQLList(ProductType),
             args: {
-                categoryId: {type: GraphQLInt},
+                categoryId: {type: GraphQLString},
             },
             resolve: (_, args) => {
                 const {categoryId} = args;
-                const category = template.productCategories.find(
-                    ({id}) => id === categoryId,
-                );
 
-                if (category) return category.items;
-                return null;
+                return getProductsByCategoryId(categoryId);
             },
         },
         productCategories: {
             type: GraphQLList(ProductCategoryType),
-            resolve() {
-                return template.productCategories;
-            },
+            resolve: async () => await getAllCategories(),
         },
     },
 });

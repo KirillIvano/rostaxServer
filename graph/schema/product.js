@@ -2,14 +2,13 @@ const {
     GraphQLObjectType,
     GraphQLString,
     GraphQLList,
-    GraphQLID,
 } = require('graphql');
 
 const DescriptionItemType = new GraphQLObjectType({
     name: 'descriptionItem',
     fields: {
-        propName: {type: GraphQLString},
-        propValue: {type: GraphQLString},
+        name: {type: GraphQLString},
+        value: {type: GraphQLString},
     },
 });
 
@@ -24,11 +23,13 @@ const DescriptionSectionType = new GraphQLObjectType({
 const ProductType = new GraphQLObjectType({
     name: 'product',
     fields: {
-        id: {type: GraphQLID},
-        certificate: {type: GraphQLString},
+        id: {type: GraphQLString},
         name: {type: GraphQLString},
         shortDescription: {type: GraphQLString},
         type: {type: GraphQLString},
+        price: {type: GraphQLString},
+        image: {type: GraphQLString},
+        certificate: {type: GraphQLString},
         description: {type: GraphQLList(DescriptionSectionType)},
     },
 });
@@ -36,8 +37,9 @@ const ProductType = new GraphQLObjectType({
 const ProductCategoryType = new GraphQLObjectType({
     name: 'productCategory',
     fields: {
-        id: {type: GraphQLID},
+        id: {type: GraphQLString},
         name: {type: GraphQLString},
+        image: {type: GraphQLString},
     },
 });
 
